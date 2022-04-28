@@ -2,6 +2,8 @@
 ## A Discord bot that alerts a channel when a new manga chapter is released
 
 
+
+
 ###### TODO:
 - [x] Create boilerplate discord bot
 - [x] Create slash command handler
