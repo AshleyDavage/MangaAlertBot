@@ -1,5 +1,6 @@
 # Manga Alert Bot
 ## A Discord bot that alerts a channel when a new manga chapter is released
+A part-time project I am building while working towards my Degree.
 
 
 
