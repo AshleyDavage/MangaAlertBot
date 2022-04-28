@@ -25,7 +25,7 @@
     ],
     "include": [
         "./**/*.ts"
-    ],
+, "src/CommandTemplate"    ],
     "exclude": [
         "node_modules",
         "dist"

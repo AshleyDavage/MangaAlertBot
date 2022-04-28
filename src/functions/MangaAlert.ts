@@ -1,0 +1,2 @@
+// TODO: This is a co-routine that should run at all times to keep checking whether there is a new chapter.
+// If there is a difference between the data we should output the latest information to the specified feeds/users.
