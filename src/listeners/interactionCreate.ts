@@ -7,7 +7,7 @@ export default (client: Client): void  => {
     client.on("interactionCreate", async (interaction: Interaction) => {
         if (interaction.isCommand() || interaction.isContextMenu()) {
             const time: number = Date.now();
-            
+                        
             // This is when the slash command starts
             await handleSlashCommand(client, interaction, time);
         }
