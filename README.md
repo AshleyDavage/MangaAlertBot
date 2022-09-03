@@ -8,7 +8,7 @@ A part-time project I am building while working towards my Degree.
 ###### TODO:
 - [x] Create boilerplate discord bot
 - [x] Create slash command handler
-- [ ] Create Ping command to check delay
+- [x] Create Ping command to check delay
 - [ ] Create manga search functionality
     - [ ] Search with the user input
     - [ ] Store results temporarily

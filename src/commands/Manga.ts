@@ -7,10 +7,8 @@ export const Manga: Command = {
     name: "manga",
     description: "A command to select a manga that should be tracked by a user or fed to a channel",
     type: "CHAT_INPUT",
-    run: async (client: Client, interaction: BaseCommandInteraction) => {
+    options: [],
+    run: async (client: Client, interaction: BaseCommandInteraction, time: number) => {
         // TODO: Research best way to implement sub-command interactions
-        await interaction.followUp({
-            
-        })
     }
 }
