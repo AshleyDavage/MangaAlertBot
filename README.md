@@ -9,9 +9,9 @@ A part-time project I am building while working towards my Degree.
 - [x] Create boilerplate discord bot
 - [x] Create slash command handler
 - [x] Create Ping command to check delay
-- [ ] Create manga search functionality
-    - [ ] Search with the user input
-    - [ ] Store results temporarily
+- [X] Create manga search functionality
+    - [X] Search with the user input
+    - [X] Store results temporarily
     - [ ] Return the results to the user
     - [ ] User selects one result
     - [ ] Add manga information to Manga Tracker
