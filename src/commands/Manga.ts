@@ -39,12 +39,11 @@ export const Manga: Command = {
                 if(name === undefined) { return interaction.followUp({ content: errMessage }); }
                 mangaArr = await MangaSearch(("" + name).toLowerCase());
                 // TODO: format the response.
-                console.log(mangaArr[0]);
 
 
                 // TODO: follow up with the interaction
                 interaction.followUp({
-                    content: mangaArr[0].cover_url
+                    content: "f"//mangaArr[0].cover_url
                 })
                 break;
             case "track":
