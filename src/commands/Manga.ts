@@ -2,7 +2,7 @@
 // There should be a feed and a track option.
 import { ApplicationCommandType, ChatInputCommandInteraction, Client } from "discord.js";
 import { Command } from '../command';
-import { MangaSearch } from "../functions/MangaSearch";
+import { Search } from "../functions/MangaAPI";
 
 // TODO: Split functionality across multiple commands
 // TODO: Remove Tracker only need Alert and would simplify things.
@@ -27,7 +27,7 @@ export const Manga: Command = {
         }
     ],
     run: async (client: Client, interaction: ChatInputCommandInteraction, time: number) => {
-        const mode = interaction.options.get("mode")?.value;
+        /* const mode = interaction.options.get("mode")?.value;
         const name = interaction.options.get("name")?.value;
     
         const errMessage: string = "There was an error finding a manga by that name!\nTry again or contact the developer if the problem persists.";
@@ -54,6 +54,6 @@ export const Manga: Command = {
                 break;
             default:
                 console.log("User somehow broke the manga command.");
-        }
+        } */
     }
 }
