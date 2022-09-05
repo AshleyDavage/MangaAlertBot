@@ -2,13 +2,13 @@
 ## A Discord bot that finds and tracks manga, manhua, and manhwa.
 This discord bot will be designed to find manga, with a given name or random ones meeting criteria, track them for users, and alert users/channels when new chapters are released.
 
-###### Current Goals:
+#### Current Goals:
 
 - [x] Find random manga
     - [x] Show random manga as embed
     - [x] Find multiple random manga
     - [ ] Enable pagination on Discord embeds to display all the found manga
-    
+
 - [ ] Find specific manga
     - [ ] Show specific manga as embed
     - [ ] Add button to "track" manga
@@ -29,7 +29,7 @@ This discord bot will be designed to find manga, with a given name or random one
     - [ ] Output manga updates to a specified channel
 
 
-###### Previous Goals:
+#### Previous Goals:
 - [X] Create boilerplate typescript bot
 - [X] Create slash command handler
 - [X] Create ping command to check delay
