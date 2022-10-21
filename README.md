@@ -29,7 +29,7 @@ This discord bot will be designed to find manga, with a given name or random one
     - [ ] Output manga updates to a specified channel
 
 
-#### **Previous Goals**:
+#### **Starting Goals**:
 - [X] Create boilerplate typescript bot
 - [X] Create slash command handler
 - [X] Create ping command to check delay
