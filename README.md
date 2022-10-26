@@ -1,6 +1,6 @@
 # **Manga Alert Bot**
-## A Discord bot that finds and tracks manga, manhua, and manhwa.
-This discord bot will be designed to find manga, with a given name or random ones meeting criteria, track them for users, and alert users/channels when new chapters are released.
+## A Discord bot that finds and tracks manga.
+This discord bot is designed to find manga with a given name, list random manga with optional filters, track the manga for individual users, and alert the subscribed users/channels when new chapters are released.
 
 #### **Current Goals**:
 
@@ -40,5 +40,7 @@ This discord bot will be designed to find manga, with a given name or random one
 > Ensure you have Node 16.15 or higher installed
 2. Run `npm install` to install dependencies
 3. Create a `.env` file in the root directory and add your bot token, as well as the URL for the websites you wish to use as a source.
-4. Edit a few of the commands to ensure it gets the data correctly from the source.
+4. Change the functions that are specific to URLs `You will need to have an understanding of API Requests and TypeScript`.
 5. Run `npm start` to start the bot.
+
+If you do not want to setup the bot in a local environment and change the necessary code blocks, you will be able to invite it to Discord servers in the future.
