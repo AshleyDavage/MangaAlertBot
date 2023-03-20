@@ -63,6 +63,8 @@ export const Random: Command = {
 
         const embed = mangaEmbeds[pages[id]];
 
+        // we await the followUp so we can create a message component collector on it
+        // this ensures the button presses are for unique messages rather than all of them.
         const collector = (await interaction.followUp({ embeds: [embed], components: [GetEmbedRow(id, pages)] })).createMessageComponentCollector({time});
 
         // If the message collector was created.
@@ -118,8 +120,6 @@ const MangaEmbedGenerator = async (manga: any, timeTaken: number): Promise<Embed
 // TODO: Extract alongside MangaEmbedGenerator
 const GetEmbedRow = (id: string, pages: any) => {
     const row = new ActionRowBuilder<ButtonBuilder>();
-
-    console.log("rows are created")
     
     row.addComponents(
         new ButtonBuilder()
