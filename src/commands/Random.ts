@@ -35,7 +35,8 @@ export const Random: Command = {
             url = url;   
         } else { // Genres selected
             url += "&genres=";
-            genres.forEach((genre: string) => { // TODO: Shorten this logic, both condifitions are same result except a comma.
+            // TODO: Shorten this logic, both conditions are same result except a comma. Maybe for loop instead of forEach?
+            genres.forEach((genre: string) => { 
                 if(iterator === genres.length){
                     url += `${genre.trim().replace(" ", "-").toLowerCase()}`
                 } else {
