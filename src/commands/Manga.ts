@@ -1,6 +1,6 @@
 // TODO: Add /manga command functionality
 // There should be a feed and a track option.
-import { ApplicationCommandType, ChatInputCommandInteraction, Client } from "discord.js";
+import { ApplicationCommandType, Channel, ChatInputCommandInteraction, Client, User } from "discord.js";
 import { Command } from '../command';
 import { Search } from "../functions/MangaAPI";
 

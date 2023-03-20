@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Client, Interaction } from "discord.js";
+import { Channel, ChatInputCommandInteraction, Client, Interaction, User } from "discord.js";
 import { Commands } from '../commands';
 
 
@@ -6,9 +6,9 @@ import { Commands } from '../commands';
 export default (client: Client): void  => {
     client.on("interactionCreate", async (interaction: Interaction) => {
         if (interaction.isChatInputCommand()) {
-            const time: number = Date.now();
+            const timeTaken: number = Date.now();
             // This is when the slash command starts
-            await handleSlashCommand(client, interaction, time);
+            await handleSlashCommand(client, interaction, timeTaken);
         }
     })
 }
