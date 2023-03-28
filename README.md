@@ -10,8 +10,8 @@ This discord bot is designed to find manga with a given name, list random manga 
     - [x] Enable pagination on Discord embeds to display all the found manga
     - [ ] Enable track button functionality
 
-- [ ] Find specific manga
-    - [ ] Show specific manga as embed
+- [x] Find specific manga - returns multiple results for better accuracy.
+    - [x] Show manga as paginated embed
     - [ ] Add button to "track" manga
     - [ ] Add button to "untrack" manga
 
@@ -40,8 +40,9 @@ This discord bot is designed to find manga with a given name, list random manga 
 1. Clone repository
 > Ensure you have Node 16.15 or higher installed
 2. Run `npm install` to install dependencies
-3. Create a `.env` file in the root directory and add your bot token, as well as the URL for the websites you wish to use as a source.
-4. Change the functions that are specific to URLs `You will need to have an understanding of API Requests and TypeScript`.
-5. Run `npm start` to start the bot.
+3. Create a `.env` file in the root directory and add your bot token
+4. Create a config.json file that will store your API URL's
+5. Change the functions that are specific to URLs `You will need to have an understanding of API Requests and TypeScript`.
+6. Run `npm start` to start the bot.
 
 If you do not want to setup the bot in a local environment and change the necessary code blocks, you will be able to invite it to Discord servers in the future.
