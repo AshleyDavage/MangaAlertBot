@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonStyle, Channel, ChatInputCommandInteraction, Client, Embed, EmbedBuilder, EmbedData, Interaction, User } from "discord.js";
-import { FindMangaByTitle, Search } from "../functions/MangaAPI";
+import { FindMangaByTitle, FindMangasWithFilters } from "../functions/MangaAPI";
 import { Command } from '../command';
 import config from '../config.json';
 import { MangaEmbedGenerator, GetEmbedRow } from "../functions/DiscordUtil";
@@ -28,7 +28,7 @@ export const Random: Command = {
         const genres: any[] = ("" + interaction.options.get("genres")?.value).split(",");
 
         // generate url
-        let url: string = config.API_URL + `search?page=${Math.floor(Math.random() * 100)}&tachiyomi=true`
+        let url: string = config.API_URL + `v1.0/search?page=${Math.floor(Math.random() * 100)}&tachiyomi=true`
 
         // No genres selected
         if(genres.includes(null)){
@@ -42,14 +42,15 @@ export const Random: Command = {
                 }
             }
         }
-        const randomMangas = await Search(url);
+        const randomMangas = await FindMangasWithFilters(url);
 
+        // TODO: This is the exact same functionality as Search -> Should export to embed generation function to avoid duplication.      
         let mangaEmbeds: EmbedBuilder[] = [];
         const pages = {} as { [key: string]: number }
 
         for (let i = 0; i < randomMangas.length; i++) {
-            const mangaTitle = await FindMangaByTitle(config.API_URL + `comic/${randomMangas[i].slug}?tachiyomi=true`) || "err";
-            mangaEmbeds.push(await MangaEmbedGenerator(mangaTitle, timeTaken));
+            const mangaContent = await FindMangaByTitle(config.API_URL + `comic/${randomMangas[i].slug}?tachiyomi=true`) || "err";
+            mangaEmbeds.push(await MangaEmbedGenerator(mangaContent, timeTaken));
         }
 
         // Pagination for embeds

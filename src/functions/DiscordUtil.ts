@@ -1,9 +1,17 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from "discord.js";
 import config from "../config.json";
 
+/**
+ * @remarks
+ * This function generates a Discord Embed for a given Manga object.
+ * 
+ * @param manga The JSON object returned from FindMangaByTitle().
+ * @param timeTaken The passed through time taken to run entire function.
+ * @returns Formatted EmbedBuilder object for a message embed.
+ */
 export const MangaEmbedGenerator = async (manga: any, timeTaken: number): Promise<EmbedBuilder> => {
     manga == "err" ? manga = {} : manga = manga;
-    if(manga.comic.title === undefined) { return new EmbedBuilder().setTitle("Broken Result :("); }
+    if(manga.length == 0) { return new EmbedBuilder().setTitle("Broken Result :("); }
 
     const descStrip = manga.comic.desc?.replace(/<[^>]*>?/gm, '') || "No description found.";
     
@@ -25,6 +33,14 @@ export const MangaEmbedGenerator = async (manga: any, timeTaken: number): Promis
     return embed;
 }
 
+/**
+ * @remarks
+ * This function generates a Discord ActionRow for a given Embed object. A new one is generated for every page of an embed.
+ * 
+ * @param id ID of the User who is interacting with the embed.
+ * @param pages An Array of pages to be displayed.
+ * @returns ActionRowBuilder object for a message component.
+ */
 export const GetEmbedRow = (id: string, pages: any) => {
     const row = new ActionRowBuilder<ButtonBuilder>();
     
