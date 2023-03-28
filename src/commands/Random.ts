@@ -1,6 +1,8 @@
 import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonStyle, Channel, ChatInputCommandInteraction, Client, Embed, EmbedBuilder, EmbedData, Interaction, User } from "discord.js";
 import { FindMangaByTitle, Search } from "../functions/MangaAPI";
 import { Command } from '../command';
+import config from '../config.json';
+import { MangaEmbedGenerator, GetEmbedRow } from "../functions/DiscordUtil";
 
 // TODO: Setup pagination for the discord embeds to cycle through found manga
 // TODO: Add "Save" button so the user can enable notifications on new chapters
@@ -27,7 +29,8 @@ export const Random: Command = {
         const genres: any[] = ("" + interaction.options.get("genres")?.value).split(",");
 
         // generate url
-        let url: string = process.env.API_URL + `search?page=${Math.floor(Math.random() * 100)}&tachiyomi=true`
+        let url: string = config.API_URL + `search?page=${Math.floor(Math.random() * 100)}&tachiyomi=true`
+        console.log(url);
         let iterator: number = 1;
 
         // No genres selected
@@ -51,7 +54,7 @@ export const Random: Command = {
         const pages = {} as { [key: string]: number }
 
         for (let i = 0; i < randomMangas.length; i++) {
-            const mangaTitle = await FindMangaByTitle(process.env.API_URL + `comic/${randomMangas[i].slug}?tachiyomi=true`) || "err";
+            const mangaTitle = await FindMangaByTitle(config.API_URL + `comic/${randomMangas[i].slug}?tachiyomi=true`) || "err";
             mangaEmbeds.push(await MangaEmbedGenerator(mangaTitle, timeTaken));
         }
 
@@ -90,60 +93,4 @@ export const Random: Command = {
             })
         }
     }
-}
-
-// TODO: Extract for reusability
-const MangaEmbedGenerator = async (manga: any, timeTaken: number): Promise<EmbedBuilder> => {
-    manga == "err" ? manga = {} : manga = manga;
-    if(manga.comic.title === undefined) { return new EmbedBuilder().setTitle("Broken Result :("); }
-
-    const descStrip = manga.comic.desc?.replace(/<[^>]*>?/gm, '') || "No description found.";
-    
-    const embed = new EmbedBuilder()
-        .setColor(7419530)
-        .setTitle(manga.comic.title)
-        .setURL(`${process.env.URL}/comic/${manga.comic.slug}`)
-        .setDescription(descStrip)
-        .setImage(manga.comic.cover_url)
-        .setTimestamp()
-        .setFooter({ text: `Information from comick.fun  -  ping: ${Date.now() - timeTaken}ms` })
-
-    if(manga.authors.length > 0){
-        embed.setAuthor({ name: `Author: ${manga.authors[0].name}` })
-    } else {
-        embed.setAuthor({ name: `Author: Unknown` });
-    }
-
-    return embed;
-}
-
-// TODO: Extract alongside MangaEmbedGenerator
-const GetEmbedRow = (id: string, pages: any) => {
-    const row = new ActionRowBuilder<ButtonBuilder>();
-    
-    row.addComponents(
-        new ButtonBuilder()
-            .setCustomId('previous_embed')
-            .setLabel('<')
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(pages[id] === 0)
-    )
-
-    row.addComponents(
-        new ButtonBuilder()
-            .setCustomId('track_manga_embed')
-            .setLabel('Track')
-            .setStyle(ButtonStyle.Success)
-            .setDisabled(false)
-    )
-
-    row.addComponents(
-        new ButtonBuilder()
-            .setCustomId('next_embed')
-            .setLabel('>')
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(pages[id] === pages.length - 1)
-    )
-
-    return row;
 }
