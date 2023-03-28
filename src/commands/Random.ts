@@ -4,7 +4,6 @@ import { Command } from '../command';
 import config from '../config.json';
 import { MangaEmbedGenerator, GetEmbedRow } from "../functions/DiscordUtil";
 
-// TODO: Setup pagination for the discord embeds to cycle through found manga
 // TODO: Add "Save" button so the user can enable notifications on new chapters
 
 export const Random: Command = {
@@ -30,23 +29,18 @@ export const Random: Command = {
 
         // generate url
         let url: string = config.API_URL + `search?page=${Math.floor(Math.random() * 100)}&tachiyomi=true`
-        console.log(url);
-        let iterator: number = 1;
 
         // No genres selected
         if(genres.includes(null)){
             url = url;   
         } else { // Genres selected
             url += "&genres=";
-            // TODO: Shorten this logic, both conditions are same result except a comma. Maybe for loop instead of forEach?
-            genres.forEach((genre: string) => { 
-                if(iterator === genres.length){
-                    url += `${genre.trim().replace(" ", "-").toLowerCase()}`
-                } else {
-                    url += `${genre.trim().replace(" ", "-").toLowerCase()},`
+            for(let i = 0; i < genres.length; i++){
+                url += `${genres[i].trim().replace(" ", "-").toLowerCase()}`
+                if(i < genres.length - 1){
+                    url += ","
                 }
-                iterator++;
-            });
+            }
         }
         const randomMangas = await Search(url);
 
@@ -79,7 +73,7 @@ export const Random: Command = {
     
                 btnInt.deferUpdate();    
 
-                if(btnInt.customId !== 'previous_embed' && btnInt.customId !== 'next_embed'){
+                if(btnInt.customId !== 'previous_embed' && btnInt.customId !== 'next_embed' && btnInt.customId !== 'track_manga_embed'){
                     return
                 }
 
@@ -87,6 +81,9 @@ export const Random: Command = {
                     --pages[id];
                 } else if(btnInt.customId === 'next_embed' && pages[id] < mangaEmbeds.length - 1){
                     ++pages[id];
+                } else if(btnInt.customId === 'track_manga_embed'){
+                    // Setup tracking for this manga here.
+                    // Current manga is mangaEmbeds[pages[id]]
                 }
 
                 interaction.editReply({ embeds: [mangaEmbeds[pages[id]]], components: [GetEmbedRow(id, pages)] });
