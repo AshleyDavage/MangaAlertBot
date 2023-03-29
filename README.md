@@ -47,14 +47,14 @@ This discord bot is designed to find manga with a given name, list random manga 
         ```
 4. Create a `config.json` file that will store your API URL's
     - Template:
-        ```
+        ```JSON
             {
                 "API_URL": "API_URL_GOES_HERE",
                 "API_LATEST_CHAPTER_URL": "API_LATEST_CHAPTER_URL_GOES_HERE",
                 "WEBSITE_URL": "WEBSITE_URL_GOES_HERE"
             }
         ```
-5. Change the functions that are specific to URLs `You will need to have an understanding of API Requests and TypeScript`.
+5. You will need to change a decent portion of the functions that retrieve data to ensure the correct data is obtained, you will also need to change a lot of the functions that mutate the retrieved data. `You will need to have an understanding of API Requests and TypeScript`.
 6. Run `npm start` to start the bot.
 
 If you do not want to setup the bot in a local environment and change the necessary code blocks, you will be able to invite it to Discord servers in the future.
