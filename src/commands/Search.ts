@@ -1,9 +1,9 @@
 // There should be a feed and a track option.
-import { ApplicationCommandType, Channel, ChatInputCommandInteraction, Client, EmbedBuilder, User } from "discord.js";
+import { ApplicationCommandType, ChatInputCommandInteraction, Client, EmbedBuilder } from "discord.js";
 import { Command } from '../command';
-import { FindMangaByTitle, FindMangasWithFilters } from "../functions/MangaAPI";
+import { FindMangasWithFilters } from "../functions/MangaAPI";
 import config from "../config.json";
-import { GetEmbedRow, MangaEmbedGenerator } from "../functions/DiscordUtil";
+import { GetEmbedPagination, GetEmbedRow, } from "../functions/DiscordUtil";
 
 
 export const Search: Command = {
@@ -27,25 +27,12 @@ export const Search: Command = {
         let mangaArr = await FindMangasWithFilters(config.API_URL + `v1.0/search?q=${title}&tachiyomi=true`);
         if(mangaArr.length == 0) return interaction.followUp({ content: "Couldn't find any mangas with that title!" });
 
-        // TODO: This is the exact same functionality as Random -> Should export to embed generation function to avoid duplication.
-        // Create the embeds
-        let mangaEmbeds: EmbedBuilder[] = [];
-        const pages = {} as {[key: string]: number};
-
-        for(let i = 0; i < mangaArr.length; i++){
-            const mangaContent = await FindMangaByTitle(config.API_URL + `comic/${mangaArr[i].slug}?tachiyomi=true`) || "err";
-            mangaEmbeds.push(await MangaEmbedGenerator(mangaContent, timeTaken));
-        }
-
-        const time = 1000 * 60 * 5;
         const id = interaction.user.id;
-        pages[id] = pages[id] || 0;
+        const { collector, embeds, pages } = await GetEmbedPagination(mangaArr, interaction); 
 
-        const embed = mangaEmbeds[pages[id]];
-
-        const collector = (await interaction.followUp({ embeds: [embed], components: [GetEmbedRow(id, pages)] })).createMessageComponentCollector({time});
-
+        // If the collector exists
         if(collector){
+            // On the collect event handle the button interaction.
             collector.on('collect', btnInt => {
                 if (!btnInt){
                     return
@@ -59,14 +46,16 @@ export const Search: Command = {
 
                 if(btnInt.customId === 'previous_embed' && pages[id] > 0){
                     --pages[id];
-                } else if(btnInt.customId === 'next_embed' && pages[id] < mangaEmbeds.length - 1){
+                } else if(btnInt.customId === 'next_embed' && pages[id] < embeds.length - 1){
                     ++pages[id];
                 } else if(btnInt.customId === 'track_manga_embed'){
                     // Setup tracking for this manga here.
                     // Current manga is mangaEmbeds[pages[id]]
                 }
 
-                interaction.editReply({ embeds: [mangaEmbeds[pages[id]]], components: [GetEmbedRow(id, pages)] });
+                console.log(pages[id] + " pages: " + pages);
+
+                interaction.editReply({ embeds: [embeds[pages[id]]], components: [GetEmbedRow(id, pages, embeds.length)] });
             })
         }
     }

@@ -1,8 +1,8 @@
-import { ActionRowBuilder, ApplicationCommandType, ButtonBuilder, ButtonStyle, Channel, ChatInputCommandInteraction, Client, Embed, EmbedBuilder, EmbedData, Interaction, User } from "discord.js";
+import { ApplicationCommandType, ChatInputCommandInteraction, Client, EmbedBuilder } from "discord.js";
 import { FindMangaByTitle, FindMangasWithFilters } from "../functions/MangaAPI";
 import { Command } from '../command';
 import config from '../config.json';
-import { MangaEmbedGenerator, GetEmbedRow } from "../functions/DiscordUtil";
+import { GetMangaEmbed, GetEmbedRow, GetEmbedPagination } from "../functions/DiscordUtil";
 
 // TODO: Add "Save" button so the user can enable notifications on new chapters
 
@@ -44,26 +44,9 @@ export const Random: Command = {
         }
         const randomMangas = await FindMangasWithFilters(url);
 
-        // TODO: This is the exact same functionality as Search -> Should export to embed generation function to avoid duplication.      
-        let mangaEmbeds: EmbedBuilder[] = [];
-        const pages = {} as { [key: string]: number }
-
-        for (let i = 0; i < randomMangas.length; i++) {
-            const mangaContent = await FindMangaByTitle(config.API_URL + `comic/${randomMangas[i].slug}?tachiyomi=true`) || "err";
-            mangaEmbeds.push(await MangaEmbedGenerator(mangaContent, timeTaken));
-        }
-
         // Pagination for embeds
-        const time = 1000 * 60 * 5;
-
         const id = interaction.user.id;
-        pages[id] = pages[id] || 0;
-
-        const embed = mangaEmbeds[pages[id]];
-
-        // we await the followUp so we can create a message component collector on it
-        // this ensures the button presses are for unique messages rather than all of them.
-        const collector = (await interaction.followUp({ embeds: [embed], components: [GetEmbedRow(id, pages)] })).createMessageComponentCollector({time});
+        const { collector, embeds, pages } = await GetEmbedPagination(randomMangas, interaction); 
 
         // If the message collector was created.
         if(collector) {
@@ -80,14 +63,14 @@ export const Random: Command = {
 
                 if(btnInt.customId === 'previous_embed' && pages[id] > 0){
                     --pages[id];
-                } else if(btnInt.customId === 'next_embed' && pages[id] < mangaEmbeds.length - 1){
+                } else if(btnInt.customId === 'next_embed' && pages[id] < embeds.length - 1){
                     ++pages[id];
                 } else if(btnInt.customId === 'track_manga_embed'){
                     // Setup tracking for this manga here.
                     // Current manga is mangaEmbeds[pages[id]]
                 }
 
-                interaction.editReply({ embeds: [mangaEmbeds[pages[id]]], components: [GetEmbedRow(id, pages)] });
+                interaction.editReply({ embeds: [embeds[pages[id]]], components: [GetEmbedRow(id, pages, embeds.length)] });
             })
         }
     }
