@@ -41,7 +41,19 @@ This discord bot is designed to find manga with a given name, list random manga 
 > Ensure you have Node 16.15 or higher installed
 2. Run `npm install` to install dependencies
 3. Create a `.env` file in the root directory and add your bot token
-4. Create a config.json file that will store your API URL's
+    - Template:
+        ```
+            TOKEN="BOT_TOKEN_GOES_HERE"
+        ```
+4. Create a `config.json` file that will store your API URL's
+    - Template:
+        ```
+            {
+                "API_URL": "API_URL_GOES_HERE",
+                "API_LATEST_CHAPTER_URL": "API_LATEST_CHAPTER_URL_GOES_HERE",
+                "WEBSITE_URL": "WEBSITE_URL_GOES_HERE"
+            }
+        ```
 5. Change the functions that are specific to URLs `You will need to have an understanding of API Requests and TypeScript`.
 6. Run `npm start` to start the bot.
 
