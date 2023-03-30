@@ -2,9 +2,7 @@ import { ApplicationCommandType, ChatInputCommandInteraction, Client, EmbedBuild
 import { FindMangaByTitle, FindMangasWithFilters } from "../functions/MangaAPI";
 import { Command } from '../command';
 import config from '../config.json';
-import { GetMangaEmbed, GetEmbedRow, GetEmbedPagination } from "../functions/DiscordUtil";
-
-// TODO: Add "Save" button so the user can enable notifications on new chapters
+import { GetMangaEmbed, GetEmbedRow, GetEmbedPagination, GetFollowDropDownMenu, UpdateTrackedManga } from "../functions/DiscordUtil";
 
 export const Random: Command = {
     name: "random",
@@ -48,29 +46,53 @@ export const Random: Command = {
         const id = interaction.user.id;
         const { collector, embeds, pages } = await GetEmbedPagination(randomMangas, interaction); 
 
+        let followMenu: boolean = false;
+
         // If the message collector was created.
         if(collector) {
-            collector.on('collect', btnInt => {
-                if (!btnInt){
+            collector.on('collect', async embedInt => {
+                if (!embedInt){
                     return
                 }
     
-                btnInt.deferUpdate();    
+                embedInt.deferUpdate();    
 
-                if(btnInt.customId !== 'previous_embed' && btnInt.customId !== 'next_embed' && btnInt.customId !== 'track_manga_embed'){
+                if(embedInt.isStringSelectMenu()){
+                    const mangaTitle: string | undefined = embeds[pages[id]].data.title;
+                    if(mangaTitle === undefined) return;
+                    if(embedInt.values[0] == 'dm'){
+                        UpdateTrackedManga(mangaTitle, (await interaction.user.createDM(true)).id)                        
+                        interaction.editReply({content: `You will now receive notifications for ${mangaTitle} in your DMs.`});
+                    } else if(embedInt.values[0] == 'channel'){
+                        UpdateTrackedManga(mangaTitle, interaction.channelId);
+                        interaction.editReply({content: `You will now receive notifications for ${mangaTitle} in this channel.`});
+                    }
+                }
+
+                if(embedInt.customId !== 'previous_embed' && embedInt.customId !== 'next_embed' && embedInt.customId !== 'follow_manga_embed' && embedInt.customId !== 'close_follow_menu'){
                     return
                 }
 
-                if(btnInt.customId === 'previous_embed' && pages[id] > 0){
+                if(embedInt.customId === 'previous_embed' && pages[id] > 0){
                     --pages[id];
-                } else if(btnInt.customId === 'next_embed' && pages[id] < embeds.length - 1){
+                } else if(embedInt.customId === 'next_embed' && pages[id] < embeds.length - 1){
                     ++pages[id];
-                } else if(btnInt.customId === 'track_manga_embed'){
-                    // Setup tracking for this manga here.
-                    // Current manga is mangaEmbeds[pages[id]]
+                } else if(embedInt.customId === 'follow_manga_embed'){
+                    const dropdown = GetFollowDropDownMenu();
+
+                    followMenu = true;
+                    interaction.editReply({ 
+                        content: `Select where you would like to receive notifications for ${embeds[pages[id]].data.title}.`, 
+                        embeds: [], 
+                        components: [dropdown.string_select_menu_builder, dropdown.return_button_builder]
+                    });
+                } else if(embedInt.customId === 'close_follow_menu'){
+                    followMenu = false;
                 }
 
-                interaction.editReply({ embeds: [embeds[pages[id]]], components: [GetEmbedRow(id, pages, embeds.length)] });
+                if(!followMenu){
+                    interaction.editReply({ embeds: [embeds[pages[id]]], components: [GetEmbedRow(id, pages, embeds.length)] });
+                }
             })
         }
     }

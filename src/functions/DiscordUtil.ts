@@ -1,14 +1,13 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, EmbedBuilder, InteractionCollector, MappedInteractionTypes } from "discord.js";
+import { ActionRow, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, EmbedBuilder, InteractionCollector, MappedInteractionTypes, StringSelectMenuBuilder } from "discord.js";
 import config from "../config.json";
 import { FindMangaByTitle } from "./MangaAPI";
-
+//TODO: Improve the accuracy of parameter obejcts -> "any" should be more specific.
 /**
  * @remarks
  * This function generates a Discord Embed for a given Manga object.
  * 
- * @param manga The JSON object returned from FindMangaByTitle().
- * @param timeTaken The passed through time taken to run entire function.
- * @returns Formatted EmbedBuilder object for a message embed.
+ * @param {any} manga The JSON object returned from FindMangaByTitle().
+ * @returns {EmbedBuilder} Formatted EmbedBuilder object for a message embed.
  */
 export const GetMangaEmbed = async (manga: any): Promise<EmbedBuilder> => {
     manga == "err" ? manga = {} : manga = manga;
@@ -19,7 +18,7 @@ export const GetMangaEmbed = async (manga: any): Promise<EmbedBuilder> => {
     const embed = new EmbedBuilder()
         .setColor(7419530)
         .setTitle(manga.comic.title)
-        .setURL(`${config.WEBSITE_URL}comic/${manga.comic.slug}`)
+        .setURL(`${config.WEBSITE_URL}comic/${manga.comic.hid}`)
         .setDescription(descStrip)
         .setImage(manga.comic.cover_url)
         .setTimestamp()
@@ -37,10 +36,10 @@ export const GetMangaEmbed = async (manga: any): Promise<EmbedBuilder> => {
  * @remarks
  * This function generates a Discord ActionRow for a given Embed object. A new one is generated for every page of an embed.
  * 
- * @param id ID of the User who is interacting with the embed.
- * @param pages A key value pair of pages used to toggle a button status.
- * @param embedCount The total number of embeds that are paginated.
- * @returns ActionRowBuilder object for a message component.
+ * @param {string} id ID of the User who is interacting with the embed.
+ * @param {{[key: string]: number}} pages A key value pair of pages used to toggle a button status.
+ * @param {number} embedCount The total number of embeds that are paginated.
+ * @returns {ActionRowBuilder<ButtonBuilder>} ActionRowBuilder object for a message component.
  */
 export const GetEmbedRow = (id: string, pages: {[key: string]: number}, embedCount: number): ActionRowBuilder<ButtonBuilder> => {
     const row = new ActionRowBuilder<ButtonBuilder>();
@@ -55,13 +54,11 @@ export const GetEmbedRow = (id: string, pages: {[key: string]: number}, embedCou
 
     row.addComponents(
         new ButtonBuilder()
-            .setCustomId('track_manga_embed')
-            .setLabel('Track')
+            .setCustomId('follow_manga_embed')
+            .setLabel('Follow')
             .setStyle(ButtonStyle.Success)
             .setDisabled(false)
     )
-
-    console.log(pages[id]);
 
     row.addComponents(
         new ButtonBuilder()
@@ -74,13 +71,21 @@ export const GetEmbedRow = (id: string, pages: {[key: string]: number}, embedCou
     return row;
 }
 
+/**
+ * @remarks
+ * This function generates the Discord embeds for each manga in the mangaArr
+ * 
+ * @param {any[]} mangaArr Array of manga objects from a HTTPS request.
+ * @param {ChatInputCommandInteraction} interaction The interaction that triggered the command.
+ * @returns {Collector, embeds, pages} Object containing the button collector, the array of Discord embeds and pages key-value pair.
+ */
 export const GetEmbedPagination = async (mangaArr: any[], interaction: ChatInputCommandInteraction) => {
     // Create the embeds
     let mangaEmbeds: EmbedBuilder[] = [];
     const pages = {} as {[key: string]: number};
 
     for(let i = 0; i < mangaArr.length; i++){
-        const mangaContent = await FindMangaByTitle(config.API_URL + `comic/${mangaArr[i].slug}?tachiyomi=true`) || "err";
+        const mangaContent = await FindMangaByTitle(config.API_URL + `comic/${mangaArr[i].hid}?tachiyomi=true`) || "err";
         mangaEmbeds.push(await GetMangaEmbed(mangaContent));
     }
 
@@ -95,4 +100,44 @@ export const GetEmbedPagination = async (mangaArr: any[], interaction: ChatInput
         "embeds": mangaEmbeds,
         "pages": pages
     }
+}
+/**
+ * Small method to get the follow button interaction menu components.
+ * 
+ * @returns {{ActionRowBuilder<StringSelectMenuBuilder>, ActionRowBuilder<ButtonBuilder>}} Object containing the select menu and the return button builders.
+ */
+export const GetFollowDropDownMenu = () => {
+    return {
+        "string_select_menu_builder": new ActionRowBuilder<StringSelectMenuBuilder>()
+                .addComponents(
+                new StringSelectMenuBuilder()
+                    .setCustomId("select")
+                    .setPlaceholder('Output location.')
+                    .addOptions({
+                        label: 'Direct Message',
+                        description: 'Get notified in your direct messages',
+                        value: 'dm'
+                    },
+                    {
+                        label: 'Channel',
+                        description: 'Get notified in this channel',
+                        value: 'channel'
+                    })),
+        "return_button_builder": new ActionRowBuilder<ButtonBuilder>()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('close_follow_menu')
+                        .setLabel('Back to list')
+                        .setStyle(ButtonStyle.Danger)
+                )
+        }
+}
+
+/**
+ * 
+ * @param {string} mangaTitle The title of the manga to be tracked.
+ * @param {string} channelID The id of the channel to be notified.
+ */
+export const UpdateTrackedManga = (mangaTitle: string, channelID: string) => {
+    console.log(`Manga: ${mangaTitle}, channelID: ${channelID}`);
 }

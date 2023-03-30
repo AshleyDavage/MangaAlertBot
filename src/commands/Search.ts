@@ -1,10 +1,11 @@
 // There should be a feed and a track option.
-import { ApplicationCommandType, ChatInputCommandInteraction, Client, EmbedBuilder } from "discord.js";
+import { ActionRowBuilder, ApplicationCommandType, ChatInputCommandInteraction, Client, EmbedBuilder, StringSelectMenuBuilder, TextChannel } from "discord.js";
 import { Command } from '../command';
 import { FindMangasWithFilters } from "../functions/MangaAPI";
 import config from "../config.json";
-import { GetEmbedPagination, GetEmbedRow, } from "../functions/DiscordUtil";
+import { GetEmbedPagination, GetEmbedRow, GetFollowDropDownMenu, UpdateTrackedManga, } from "../functions/DiscordUtil";
 
+const placeholder: string[] = ['884221594736656414', '729443933511483495', '744196929931575307'];
 
 export const Search: Command = {
     name: "search",
@@ -27,35 +28,57 @@ export const Search: Command = {
         let mangaArr = await FindMangasWithFilters(config.API_URL + `v1.0/search?q=${title}&tachiyomi=true`);
         if(mangaArr.length == 0) return interaction.followUp({ content: "Couldn't find any mangas with that title!" });
 
-        const id = interaction.user.id;
+        const id: string = interaction.user.id;
         const { collector, embeds, pages } = await GetEmbedPagination(mangaArr, interaction); 
+
+        let followMenu: boolean = false;
 
         // If the collector exists
         if(collector){
             // On the collect event handle the button interaction.
-            collector.on('collect', btnInt => {
-                if (!btnInt){
+            collector.on('collect', async embedInt => {
+                if (!embedInt){
                     return
                 }
     
-                btnInt.deferUpdate();    
+                embedInt.deferUpdate();
 
-                if(btnInt.customId !== 'previous_embed' && btnInt.customId !== 'next_embed' && btnInt.customId !== 'track_manga_embed'){
+                if(embedInt.isStringSelectMenu()){
+                    const mangaTitle: string | undefined = embeds[pages[id]].data.title;
+                    if(mangaTitle === undefined) return;
+                    if(embedInt.values[0] == 'dm'){
+                        UpdateTrackedManga(mangaTitle, (await interaction.user.createDM(true)).id)                        
+                        interaction.editReply({content: `You will now receive notifications for ${mangaTitle} in your DMs.`});
+                    } else if(embedInt.values[0] == 'channel'){
+                        UpdateTrackedManga(mangaTitle, interaction.channelId);
+                        interaction.editReply({content: `You will now receive notifications for ${mangaTitle} in this channel.`});
+                    }
+                }
+
+                if(embedInt.customId !== 'previous_embed' && embedInt.customId !== 'next_embed' && embedInt.customId !== 'follow_manga_embed' && embedInt.customId !== 'close_follow_menu'){
                     return
                 }
 
-                if(btnInt.customId === 'previous_embed' && pages[id] > 0){
+                if(embedInt.customId === 'previous_embed' && pages[id] > 0){
                     --pages[id];
-                } else if(btnInt.customId === 'next_embed' && pages[id] < embeds.length - 1){
+                } else if(embedInt.customId === 'next_embed' && pages[id] < embeds.length - 1){
                     ++pages[id];
-                } else if(btnInt.customId === 'track_manga_embed'){
-                    // Setup tracking for this manga here.
-                    // Current manga is mangaEmbeds[pages[id]]
+                } else if(embedInt.customId === 'follow_manga_embed'){
+                    const dropdown = GetFollowDropDownMenu();
+
+                    followMenu = true;
+                    interaction.editReply({ 
+                        content: `Select where you would like to receive notifications for ${embeds[pages[id]].data.title}.`, 
+                        embeds: [], 
+                        components: [dropdown.string_select_menu_builder, dropdown.return_button_builder]
+                    });
+                } else if(embedInt.customId === 'close_follow_menu'){
+                    followMenu = false;
                 }
 
-                console.log(pages[id] + " pages: " + pages);
-
-                interaction.editReply({ embeds: [embeds[pages[id]]], components: [GetEmbedRow(id, pages, embeds.length)] });
+                if(!followMenu){
+                    interaction.editReply({ embeds: [embeds[pages[id]]], components: [GetEmbedRow(id, pages, embeds.length)] });
+                }
             })
         }
     }
