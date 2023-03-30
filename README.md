@@ -8,11 +8,11 @@ This discord bot is designed to find manga with a given name, list random manga 
     - [x] Show random manga as embed
     - [x] Find multiple random manga
     - [x] Enable pagination on Discord embeds to display all the found manga
-    - [ ] Enable track button functionality
+    - [x] Enable track button functionality
 
 - [x] Find specific manga - returns multiple results for better accuracy.
     - [x] Show manga as paginated embed
-    - [ ] Add button to "track" manga
+    - [x] Add button to "track" manga
     - [ ] Add button to "untrack" manga
 
 - [ ] Create user functionaltiy
