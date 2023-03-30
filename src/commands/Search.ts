@@ -47,10 +47,10 @@ export const Search: Command = {
                     const mangaTitle: string | undefined = embeds[pages[id]].data.title;
                     if(mangaTitle === undefined) return;
                     if(embedInt.values[0] == 'dm'){
-                        UpdateTrackedManga(mangaTitle, (await interaction.user.createDM(true)).id)                        
+                        await UpdateTrackedManga(mangaTitle, (await interaction.user.createDM(true)).id)                        
                         interaction.editReply({content: `You will now receive notifications for ${mangaTitle} in your DMs.`});
                     } else if(embedInt.values[0] == 'channel'){
-                        UpdateTrackedManga(mangaTitle, interaction.channelId);
+                        await UpdateTrackedManga(mangaTitle, interaction.channelId);
                         interaction.editReply({content: `You will now receive notifications for ${mangaTitle} in this channel.`});
                     }
                 }

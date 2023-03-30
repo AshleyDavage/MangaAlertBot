@@ -1,6 +1,8 @@
 import { ActionRow, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, EmbedBuilder, InteractionCollector, MappedInteractionTypes, StringSelectMenuBuilder } from "discord.js";
 import config from "../config.json";
 import { FindMangaByTitle } from "./MangaAPI";
+import { Comic } from "../models/comic";
+import { slugify } from "./Util";
 //TODO: Improve the accuracy of parameter obejcts -> "any" should be more specific.
 /**
  * @remarks
@@ -85,7 +87,7 @@ export const GetEmbedPagination = async (mangaArr: any[], interaction: ChatInput
     const pages = {} as {[key: string]: number};
 
     for(let i = 0; i < mangaArr.length; i++){
-        const mangaContent = await FindMangaByTitle(config.API_URL + `comic/${mangaArr[i].hid}?tachiyomi=true`) || "err";
+        const mangaContent = await FindMangaByTitle(mangaArr[i].hid) || "err";
         mangaEmbeds.push(await GetMangaEmbed(mangaContent));
     }
 
@@ -135,9 +137,29 @@ export const GetFollowDropDownMenu = () => {
 
 /**
  * 
- * @param {string} mangaTitle The title of the manga to be tracked.
+ * @param {string} comicTitle The title of the comic to be tracked.
  * @param {string} channelID The id of the channel to be notified.
  */
-export const UpdateTrackedManga = (mangaTitle: string, channelID: string) => {
-    console.log(`Manga: ${mangaTitle}, channelID: ${channelID}`);
+export const UpdateTrackedManga = async (comicTitle: string, channelID: string) => {
+    console.log(`Manga: ${comicTitle}, channelID: ${channelID}`);
+    
+    if(await Comic.exists({ title: comicTitle})){
+        await Comic.find({title: comicTitle}).updateOne({ $push: { channels: channelID } });
+    } else {
+        const manga = await FindMangaByTitle(slugify(comicTitle));
+        if(manga === null) {
+            console.error(`[UpdateTrackedManga] Error finding manga via slugified title: ${slugify(comicTitle)}\nManga:\n${manga}`);
+            return;
+        };
+        Comic.create({
+            title: manga.comic.title,
+            latestChapter: manga.comic.last_chapter,
+            imageURL: manga.comic.cover_url,
+            description: manga.comic.desc,
+            author: manga.authors[0].name,
+            channels: [channelID],
+            slug: manga.comic.slug,
+            hid: manga.comic.hid
+        })        
+    }
 }

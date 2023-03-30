@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Client, GatewayIntentBits } from 'discord.js';
 import 'dotenv/config';
 
@@ -20,3 +21,9 @@ ready(client);
 interactionCreate(client);
 
 client.login(process.env.TOKEN);
+
+mongoose.connect(<string> process.env.DB_URI).then(() => console.log('Connected to database'));
+
+
+
+

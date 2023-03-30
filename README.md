@@ -15,8 +15,8 @@ This discord bot is designed to find manga with a given name, list random manga 
     - [x] Add button to "track" manga
     - [ ] Add button to "untrack" manga
 
-- [ ] Create user functionaltiy
-    - [ ] Store which manga a user tracks
+- [x] Create user functionaltiy
+    - [x] Store which manga a user tracks
     - [ ] Remove manga from user's tracked manga
     - [ ] Show user's tracked manga
     - [ ] Share user's tracked manga
@@ -26,7 +26,8 @@ This discord bot is designed to find manga with a given name, list random manga 
     - [ ] Loop through mangas to compare the stored chapter and current chapter
     - [ ] Notify users when a manga has updated
 
-- [ ] Create channel functionality
+- [x] Create channel functionality
+    - [x] Store which manga a channel tracks
     - [ ] Output manga updates to a specified channel
 
 

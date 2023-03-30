@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
+import config from '../config.json';
 
 /**
  * Returns array of Manga objects.
@@ -27,13 +28,19 @@ export const FindMangasWithFilters = async (url: string, amount: number = 10): P
  * Finds a manga with a given title.
  * 
  * @remarks
- * Will change to take a Title instead of URL in the future.
+ * Changed from URL to HID/Title slug, haven't tested many slugs so might not work for all comics.
  * 
- * @param {string} url - The formatted URL that will be fetched
- * @returns {AxiosResponse<any, any> | null} Data payload from the API - containing Manga information.
+ * @param {string} identifier - Either title slug or HID for manga.
+ * @returns {any} Data payload from the API - containing Manga information.
  */
-export const FindMangaByTitle = async (url: string): Promise<AxiosResponse<any, any> | null> => {
-    const response: AxiosResponse<any, any> = await axios.get(url);
+export const FindMangaByTitle = async (identifier: string): Promise<any | null> => {
+    let response: any;
+
+    try{
+        response = await axios.get(config.API_URL + `comic/${identifier}?tachiyomi=true`);
+    } catch (err){
+        console.error(err);
+    }
     if(response.status === 200){
         return response.data;
     } else{
