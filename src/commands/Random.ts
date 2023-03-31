@@ -1,4 +1,4 @@
-import { ApplicationCommandType, ChatInputCommandInteraction, Client, EmbedBuilder } from "discord.js";
+import { ApplicationCommandType, ChatInputCommandInteraction, Client, EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { FindMangaByTitle, FindMangasWithFilters } from "../functions/MangaAPI";
 import { Command } from '../command';
 import config from '../config.json';
@@ -40,11 +40,11 @@ export const Random: Command = {
                 }
             }
         }
-        const randomMangas = await FindMangasWithFilters(url);
+        const mangaArr = await FindMangasWithFilters(url);
 
         // Pagination for embeds
         const id = interaction.user.id;
-        const { collector, embeds, pages } = await GetEmbedPagination(randomMangas, interaction); 
+        const { collector, embeds, pages } = await GetEmbedPagination(mangaArr, interaction); 
 
         let followMenu: boolean = false;
 
@@ -54,17 +54,18 @@ export const Random: Command = {
                 if (!embedInt){
                     return
                 }
-    
+
+                const mangaTitle: string | undefined = embeds[pages[id]].data.title;
+
                 embedInt.deferUpdate();    
 
                 if(embedInt.isStringSelectMenu()){
-                    const mangaTitle: string | undefined = embeds[pages[id]].data.title;
                     if(mangaTitle === undefined) return;
                     if(embedInt.values[0] == 'dm'){
-                        UpdateTrackedManga(mangaTitle, (await interaction.user.createDM(true)).id)                        
+                        UpdateTrackedManga(mangaArr[pages[id]].slug, (await interaction.user.createDM(true)).id)                        
                         interaction.editReply({content: `You will now receive notifications for ${mangaTitle} in your DMs.`});
                     } else if(embedInt.values[0] == 'channel'){
-                        UpdateTrackedManga(mangaTitle, interaction.channelId);
+                        UpdateTrackedManga(mangaArr[pages[id]].slug, interaction.channelId);
                         interaction.editReply({content: `You will now receive notifications for ${mangaTitle} in this channel.`});
                     }
                 }
@@ -78,20 +79,25 @@ export const Random: Command = {
                 } else if(embedInt.customId === 'next_embed' && pages[id] < embeds.length - 1){
                     ++pages[id];
                 } else if(embedInt.customId === 'follow_manga_embed'){
-                    const dropdown = GetFollowDropDownMenu();
+                    if(!interaction.channel?.isDMBased() && interaction.memberPermissions?.has(PermissionFlagsBits.Administrator)){
+                        const dropdown = GetFollowDropDownMenu();
 
-                    followMenu = true;
-                    interaction.editReply({ 
-                        content: `Select where you would like to receive notifications for ${embeds[pages[id]].data.title}.`, 
-                        embeds: [], 
-                        components: [dropdown.string_select_menu_builder, dropdown.return_button_builder]
-                    });
+                        followMenu = true;
+                        interaction.editReply({ 
+                            content: `Select where you would like to receive notifications for ${embeds[pages[id]].data.title}.`, 
+                            embeds: [], 
+                            components: [dropdown.string_select_menu_builder, dropdown.return_button_builder]
+                        });
+                    } else {
+                        if(mangaTitle === undefined) return;
+                        UpdateTrackedManga(mangaArr[pages[id]].slug, (await interaction.user.createDM(true)).id)
+                    }
                 } else if(embedInt.customId === 'close_follow_menu'){
                     followMenu = false;
                 }
 
                 if(!followMenu){
-                    interaction.editReply({ embeds: [embeds[pages[id]]], components: [GetEmbedRow(id, pages, embeds.length)] });
+                    interaction.editReply({ embeds: [embeds[pages[id]]], components: [GetEmbedRow(id, pages, embeds.length, "follow")] });
                 }
             })
         }
