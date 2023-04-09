@@ -34,4 +34,15 @@ const comicSchema = new mongoose.Schema({
     }
 });
 
+export interface IComic extends mongoose.Document {
+    title: string;
+    latestChapter?: string;
+    imageURL?: string;
+    description?: string;
+    author?: string;
+    channels?: string[];
+    slug?: string;
+    hid: string;
+}
+
 export const Comic = mongoose.model('Comic', comicSchema);

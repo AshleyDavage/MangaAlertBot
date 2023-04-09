@@ -1,7 +1,8 @@
 // TODO: This is a co-routine that should run at all times to keep checking whether there is a new chapter.
 // If there is a difference between the data we should output the latest information to the specified feeds/users.
 
-// We can check the latest comics to see what has been released.
+// We can check the latest released chapters to see if there is a difference.
+// Store the latest chapter of any kind.
 
 // 5 minute intervals
 // We can loop through first page results until we get to the previous latest chapter.

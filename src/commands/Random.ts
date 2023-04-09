@@ -2,7 +2,8 @@ import { ApplicationCommandType, ChatInputCommandInteraction, Client, EmbedBuild
 import { FindMangaByTitle, FindMangasWithFilters } from "../functions/MangaAPI";
 import { Command } from '../command';
 import config from '../config.json';
-import { GetMangaEmbed, GetEmbedRow, GetEmbedPagination, GetFollowDropDownMenu, UpdateTrackedManga } from "../functions/DiscordUtil";
+import { GetMangaEmbed, GetEmbedRow, GetMangaEmbedPagination, GetFollowDropDownMenu } from "../functions/DiscordUtil";
+import { AddChannelToTrackedComic } from "../functions/DBUtil";
 
 export const Random: Command = {
     name: "random",
@@ -44,7 +45,7 @@ export const Random: Command = {
 
         // Pagination for embeds
         const id = interaction.user.id;
-        const { collector, embeds, pages } = await GetEmbedPagination(mangaArr, interaction); 
+        const { collector, embeds, pages } = await GetMangaEmbedPagination(mangaArr, interaction); 
 
         let followMenu: boolean = false;
 
@@ -62,10 +63,10 @@ export const Random: Command = {
                 if(embedInt.isStringSelectMenu()){
                     if(mangaTitle === undefined) return;
                     if(embedInt.values[0] == 'dm'){
-                        UpdateTrackedManga(mangaArr[pages[id]].slug, (await interaction.user.createDM(true)).id)                        
+                        AddChannelToTrackedComic(mangaArr[pages[id]].hid, (await interaction.user.createDM(true)).id)                        
                         interaction.editReply({content: `You will now receive notifications for ${mangaTitle} in your DMs.`});
                     } else if(embedInt.values[0] == 'channel'){
-                        UpdateTrackedManga(mangaArr[pages[id]].slug, interaction.channelId);
+                        AddChannelToTrackedComic(mangaArr[pages[id]].hid, interaction.channelId);
                         interaction.editReply({content: `You will now receive notifications for ${mangaTitle} in this channel.`});
                     }
                 }
@@ -90,7 +91,7 @@ export const Random: Command = {
                         });
                     } else {
                         if(mangaTitle === undefined) return;
-                        UpdateTrackedManga(mangaArr[pages[id]].slug, (await interaction.user.createDM(true)).id)
+                        AddChannelToTrackedComic(mangaArr[pages[id]].hid, (await interaction.user.createDM(true)).id)
                     }
                 } else if(embedInt.customId === 'close_follow_menu'){
                     followMenu = false;
