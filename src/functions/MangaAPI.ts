@@ -12,7 +12,7 @@ import config from '../config.json';
  * @returns {any[]} Array of Manga objects with type of any
  * 
  */
-export const FindMangasWithFilters = async (url: string, amount: number = 10): Promise<any[]> => {
+export const FindMangasWithFilters = async (url: string, amount: number = 3): Promise<any[]> => {
     const response: any = await axios.get(url);
     let mangaArr: any[] = [];
 
@@ -44,6 +44,21 @@ export const FindMangaByTitle = async (identifier: string): Promise<any | null> 
     if(response.status === 200){
         return response.data;
     } else{
+        return null;
+    }
+}
+
+export const GetLatestChapters = async () => {
+    let response: any;
+    try{
+        response = await axios.get(config.API_LATEST_CHAPTER_URL);
+    } catch(err) {
+        console.error(err);
+    }
+
+    if(response.status === 200){
+        return response.data;
+    } else {
         return null;
     }
 }

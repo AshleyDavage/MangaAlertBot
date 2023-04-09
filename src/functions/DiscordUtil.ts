@@ -207,3 +207,13 @@ export const GetSummaryEmbed = (comics: IComic[], owner: string, pageStart: numb
 
     return embed;
 }
+
+export const NewChapterEmbed = async (comic: any) => {
+    return new EmbedBuilder()
+        .setColor(7419530)
+        .setTitle(`NEW CHAPTER!`)
+        .setDescription(`${comic.md_comics.title} has a new chapter!\nChapter: ${comic.chap}\nRead now at Comick.fun: ${config.WEBSITE_URL}comic/${comic.md_comics.slug}/${comic.hid}-chapter-${comic.chap}-en`)
+        .setURL(`${config.WEBSITE_URL}comic/${comic.md_comics.hid}`)
+        .setImage(comic.md_comics.cover_url)
+        .setTimestamp();
+}

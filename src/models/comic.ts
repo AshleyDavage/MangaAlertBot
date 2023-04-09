@@ -9,7 +9,7 @@ const comicSchema = new mongoose.Schema({
     },
     latestChapter: {
         type: String,
-        trim: true
+        trim: true,
     },
     imageURL: {
         type: String
@@ -36,7 +36,7 @@ const comicSchema = new mongoose.Schema({
 
 export interface IComic extends mongoose.Document {
     title: string;
-    latestChapter?: string;
+    latestChapter: string;
     imageURL?: string;
     description?: string;
     author?: string;

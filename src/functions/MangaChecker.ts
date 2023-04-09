@@ -1,19 +1,49 @@
 // TODO: This is a co-routine that should run at all times to keep checking whether there is a new chapter.
 // If there is a difference between the data we should output the latest information to the specified feeds/users.
 
-// We can check the latest released chapters to see if there is a difference.
-// Store the latest chapter of any kind.
+import { Client, EmbedBuilder, TextChannel } from "discord.js";
+import { Comic, IComic } from "../models/comic";
+import { NewChapterEmbed } from "./DiscordUtil";
+import { GetLatestChapters } from "./MangaAPI";
 
-// 5 minute intervals
-// We can loop through first page results until we get to the previous latest chapter.
-//      If database contains this chapter and chapter is larger than currently stored
-//        Update database with new chapter
-//        Generate Embed with new chapter information
-//        Send message to all channels subscribed to this manga
-//        for(let i = 0; i < channels.length; i++){
-//            const channel = client.channels.fetch(placeholder[i]).then(channel => {
-//                if(channel?.isTextBased()){
-//                   channel.send({ embeds: [embeds[pages[id]]]});
-//                }
-//            });
-//        }                    
+let latestUpdateHID = "";
+
+export const MangaChecker = async (client: Client) => {
+    const allLatestComics = await GetLatestChapters();
+    let newComics: any[] = [];
+    for(const comic of allLatestComics){
+        if(comic.md_comics.hid === latestUpdateHID){
+            break;
+        }
+        newComics.push(comic);
+    }
+    
+
+    // console.log(`${allLatestComics.length}\n${newComics.length}`);
+
+    if (!newComics.length) {
+        return;
+    }
+
+    const currentTrackedComics = await Comic.find({ hid: { $in: newComics.map((comic: any) => comic.md_comics.hid) } });
+
+    // console.log(currentTrackedComics.length);
+    await Promise.all(currentTrackedComics.map(async (trackedComic) => {
+        for (const newComic of newComics) {
+            if (trackedComic.latestChapter !== undefined) {
+                const currentChapter = parseInt(trackedComic.latestChapter);
+                if (trackedComic.title === newComic.md_comics.title && currentChapter < parseInt(newComic.chap)) {
+                    await Comic.findOneAndUpdate({ hid: newComic.md_comics.hid }, { latestChapter: newComic.chap });
+                    console.log(`New chapter found for ${trackedComic.title}!`);
+                    const embed = await NewChapterEmbed(newComic)
+                    for(const channel of trackedComic.channels){
+                        const channelObj = await client.channels.fetch(channel);
+                        (channelObj as TextChannel).send({ embeds: [embed] });
+                    }
+                }
+            }
+        }
+    }));
+
+    latestUpdateHID = allLatestComics[0].md_comics.hid;
+}
